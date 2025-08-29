@@ -1,7 +1,5 @@
 package Lektion1.QueuesAndCircularLists.queues.QueueOpgaver.deque;
 
-import Lektion1.QueuesAndCircularLists.queues.QueueOpgaver.queue.NodeQueue;
-
 public class CircularArrayDeque implements DequeI{
 
     private Object[] elements;
