@@ -112,7 +112,7 @@ public class HashSetChaining {
 		return false;
 	}
 
-	public void rehash(){
+	private void rehash(){
 		Node[] oldBucket = buckets;
 
 		buckets = new Node[buckets.length * 2];

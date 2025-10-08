@@ -1,4 +1,4 @@
-package bst;
+package lektion02.bst;
 
 public interface Tree<E>  {
   /** Return true if the element is in the tree */

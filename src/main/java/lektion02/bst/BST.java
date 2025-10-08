@@ -1,23 +1,25 @@
 package lektion02.bst;
 
-import bst.Tree;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
-public class BST<E> implements bst.Tree<E> {
+public class BST<E> implements Tree<E> {
     protected TreeNode<E> root;
     protected int size = 0;
-    protected java.util.Comparator<E> c;
+    protected Comparator<Object> c;
 
     /**
      * Create a default BST with a natural order comparator
      */
     public BST() {
-        this.c = (e1, e2) -> ((Comparable<E>) e1).compareTo(e2);
+        this.c = (e1, e2) -> ((Comparable<E>) e1).compareTo((E) e2);
     }
 
     /**
      * Create a BST with a specified comparator
      */
-    public BST(java.util.Comparator<E> c) {
+    public BST(Comparator<Object> c) {
         this.c = c;
     }
 
@@ -25,7 +27,7 @@ public class BST<E> implements bst.Tree<E> {
      * Create a binary tree from an array of objects
      */
     public BST(E[] objects) {
-        this.c = (e1, e2) -> ((Comparable<E>) e1).compareTo(e2);
+        this.c = (e1, e2) -> ((Comparable<E>) e1).compareTo((E) e2);
         for (int i = 0; i < objects.length; i++)
             insert(objects[i]);
     }
@@ -105,6 +107,22 @@ public class BST<E> implements bst.Tree<E> {
         inorderHelper(root.right);
     }
 
+    //FOR TEST ONLY
+    public List<E> inorderList() {
+        List<E> nodeList = new ArrayList<>();
+        inorderHelperList(root, nodeList);
+        return nodeList;
+    }
+
+    private void inorderHelperList(TreeNode root, List<E> list) {
+        if(root == null){
+            return;
+        }
+        inorderHelperList(root.left, list);
+        list.add((E) root.element);
+        inorderHelperList(root.right, list);
+    }
+
 
     @Override
     /** Postorder traversal from the root
@@ -125,6 +143,22 @@ public class BST<E> implements bst.Tree<E> {
         postorderHelper(root.left);
         postorderHelper(root.right);
         System.out.print(root.element + " ");
+    }
+
+    //FOR TEST ONLY
+    public List<E> postorderList() {
+        List<E> nodeList = new ArrayList<>();
+        postorderHelperList(root, nodeList);
+        return nodeList;
+    }
+
+    private void postorderHelperList(TreeNode root, List<E> list) {
+        if (root == null){
+            return;
+        }
+        postorderHelperList(root.left, list);
+        postorderHelperList(root.right, list);
+        list.add((E) root.element);
     }
 
 
@@ -148,6 +182,22 @@ public class BST<E> implements bst.Tree<E> {
         System.out.print(root.element + " ");
         preorderHelper(root.left);
         preorderHelper(root.right);
+    }
+
+    //TEST ONLY
+    public List<E> preorderList() {
+        List<E> nodeList = new ArrayList<>();
+        preorderHelperList(root, nodeList);
+        return nodeList;
+    }
+
+    private void preorderHelperList(TreeNode root, List<E> list){
+        if(root == null){
+            return;
+        }
+        list.add((E) root.element);
+        preorderHelperList(root.left, list);
+        preorderHelperList(root.right, list);
     }
 
 
@@ -240,7 +290,24 @@ public class BST<E> implements bst.Tree<E> {
 
 //
     //-------------------------------------------------------------------
-    public boolean isLeaf(TreeNode node){
+    public boolean isLeaf(E element){
+        TreeNode node = root;
+
+        while(node != null){
+            if (node.element == element){
+                return node.left == null && node.right == null;
+            }
+            else if (c.compare(node.element, element) > 0){
+                node = node.left;
+            }else{
+                node = node.right;
+            }
+        }
+
+        return false;
+    }
+
+    public boolean isLeafWithNode(TreeNode node){
         return node.left == null && node.right == null;
     }
 
@@ -260,7 +327,7 @@ public class BST<E> implements bst.Tree<E> {
     }
 
     @Override
-    public int sum() {
+    public int sum() { //Metode er O(N) lige meget hvad. Og kan laves med alle de forskellige "gennemløbs" metoder
         return preorderCount(root);
     }
 
@@ -276,25 +343,108 @@ public class BST<E> implements bst.Tree<E> {
         return root == null;
     }
 
-    public int findMax(){
+    public E findMax(){ //O(log(N))
         return findMax(root);
     }
 
-    private int findMax(TreeNode root){
+    private E findMax(TreeNode root){
         if (root.right == null){
-            return (int) root.element;
+            return (E) root.element;
         }
         return findMax(root.right);
     }
 
-    public int findMin(){
+    public E findMin(){ //O(log(N))
         return findMin(root);
     }
 
-    private int findMin(TreeNode root){
+    private E findMin(TreeNode root){
         if (root.left == null){
-            return (int) root.element;
+            return (E) root.element;
         }
         return findMin(root.left);
+    }
+
+    public E removeMin(){
+        TreeNode previous = null;
+        TreeNode currentNode = root;
+
+        while(currentNode.left != null){
+            previous = currentNode;
+            currentNode = currentNode.left;
+        }
+        if (previous == null){
+            root = currentNode.right;
+        }else{
+            previous.left = currentNode.right;
+        }
+        size--;
+        return (E) currentNode.element;
+    }
+
+    public E removeMax() {
+        TreeNode previous = null;
+        TreeNode currentNode = root;
+
+        while (currentNode.right != null) {
+            previous = currentNode;
+            currentNode = currentNode.right;
+        }
+
+        if (previous == null) {
+            root = currentNode.left;
+        } else {
+            previous.right = currentNode.left; //Hvis "maxNode" har en child kan den kun være left. og den child vil altid være størrer end parent. Hvis ingen så bliver null bare sat
+        }
+        size--;
+        return (E) currentNode.element;
+    }
+
+    public List<E> greaterThan(E element){
+        List<E> list = new ArrayList<>();
+        greaterThanHelper(root, element, list);
+        return list;
+    }
+
+    private void greaterThanHelper(TreeNode root, E element, List<E> list) {
+        if(root == null){
+            return;
+
+        }
+        if (c.compare(root.element, element) > 0){
+            list.add((E) root.element);
+            greaterThanHelper(root.left, element, list);
+            greaterThanHelper(root.right, element, list);
+        } else {
+            greaterThanHelper(root.right, element, list);
+        }
+
+    }
+
+    public int numberOfLeaves(){
+        return numberOfLeavesHelper(root);
+    }
+
+    private int numberOfLeavesHelper(TreeNode node){
+        if (node == null) return 0;
+
+        if (node.left == null && node.right == null){
+            return 1;
+        }
+        return numberOfLeavesHelper(node.left) + numberOfLeavesHelper(node.right);
+    }
+
+    public int heightNodeCount(int targetHeight){
+       return heightNodeCountHelper(root, 0, targetHeight);
+    }
+
+    private int heightNodeCountHelper(TreeNode node, int currentHeight, int targetHeight){
+        if (node == null) return 0;
+
+        if (currentHeight == targetHeight){
+            return 1;
+        }
+        return heightNodeCountHelper(node.left, currentHeight+1, targetHeight)
+                + heightNodeCountHelper(node.right, currentHeight+1, targetHeight);
     }
 }
