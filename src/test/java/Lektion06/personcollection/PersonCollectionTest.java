@@ -54,4 +54,13 @@ class PersonCollectionTest {
 
         assertThrows(ConcurrentModificationException.class, () -> iterator.next());
     }
+
+    @Test
+    void printing() {
+        Iterator<Person> iterator = personCollection.iterator();
+
+        while(iterator.hasNext()){
+            System.out.println(iterator.next());
+        }
+    }
 }
